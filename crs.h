@@ -1,7 +1,11 @@
 # include <iostream>
 # include <string>
+# include <cstring>
 # include <stdlib.h>
-# include<conio.h>
+# include <conio.h>
+# include <stdio.h>
+
+# include "sqlite3.h"
 
 using namespace std;
 
@@ -14,11 +18,42 @@ public:
         cout << "view cars database...." << endl;
     }
 
-    void show_users_db() {
-        // DEFINE THIS FUNCTION
 
-        cout << "view users database...." << endl;
+
+    void show_users_db() {
+
+        // FUNTION TO PRINT THE USERS DATABASE
+
+        cout << endl << endl << endl;
+
+        cout << "displaying users database..." << endl << endl;
+
+        sqlite3* db;
+        sqlite3_stmt* stmt;
+        sqlite3_open("database.db", &db);
+
+        sqlite3_prepare_v2(db, "select uid, pwd from users", -1, &stmt, 0);
+
+        // TEMPORARY VARIABLES FOR STORING ID AND PASSWORD!
+        const unsigned char* id;
+        const unsigned char* password;
+
+
+        while(sqlite3_step(stmt) != SQLITE_DONE){
+
+            id = sqlite3_column_text(stmt, 0);
+            password = sqlite3_column_text(stmt, 1);
+            cout << "** user id: " << id << "       ";
+            cout << "** password: " << password << endl;
+        }
+
+        cout << endl << "DISPLAY COMPLETE..." << endl << endl;
+
+        sqlite3_close(db);
+
     }
+
+
 
     void modify_cars_db() {
         // DEFINE THIS FUNCTION
@@ -26,11 +61,15 @@ public:
         cout << "modify cars database...." << endl;
     }
 
+
+
     void modify_users_db() {
         // DEFINE THIS FUNCTION
 
         cout << "modify users database...." << endl;
     }
+
+
 
 };
 
@@ -38,7 +77,7 @@ public:
 
 class admin {
 
-    string pass = "ADMIN";
+    string pass = "me@ADMIN";
 
 public:
     bool authenticate(string s){
@@ -218,9 +257,29 @@ public:
 class newUser{
 
 public:
-    void add(string id, string password){
-        // IMPLEMENT THIS FUNCTION TO ADD USER TO THE DATABASE!
-        cout << "not implemented yet...." << endl << endl;
+    void add(char* id, char* password){
+
+        char* err;
+        sqlite3* db;
+        sqlite3_stmt* stmt;
+
+        // inserting the values for new user in the database.
+        sqlite3_open("database.db", &db);
+
+        char command[50];
+        sprintf(command, "INSERT INTO users VALUES ('%s' ,'%s');", id, password); //SPRINTF PRINTS TO A STRING BUFFER!
+        // puts(command); // debug statement
+
+        int response = sqlite3_exec(db, command, NULL, NULL, &err);
+
+        if(response != SQLITE_OK){
+            cout << "ERROR... " << err;
+        }else{
+            cout << "USER ADDED SUCCESSFULLY..." << endl << endl;
+        }
+
+        sqlite3_close(db);
+
     }
 
 };
@@ -257,39 +316,16 @@ public:
     void admin_login(){
         admin adm;  // adm is an object of admin class declared above.
 
-        string pass;
+        char pass[50];
         int attempts = 3;
 
         while (attempts >= 0){
 
             cout << "ENTER PASSWORD: ";
-            char pass[32]; // TO store password
             int i;
             char temp;
-            
-            for(i=0;;) //infinite loop
-		    {
-		        temp = getch(); //stores char typed in temp
-		        
-		        if((temp >= 'a' && temp <= 'z')||(temp >= 'A' && temp <= 'Z')||(temp >= '0' && temp <= '9')) //check if a is numeric or alphabet
-		        {
-		            pass[i] = temp;//stores temp in pass
-		            ++i;
-		            cout << "*";
-		        }
-		        
-		        if(temp == '\b' && i >= 1) //if user typed backspace & i should be greater than 1
-		        {
-		            cout << "\b \b"; //delete the character behind the cursor.
-		            --i;
-		        }
-		        
-		        if(temp == '\r') //if enter is pressed
-		        {
-		            pass[i] = '\0'; //null means end of string.
-		            break; //break the loop
-		        }
-		    }
+
+            pass_input(pass);
 
             if(adm.authenticate(pass)){
                 adm.show_admin_menu();
@@ -315,18 +351,22 @@ public:
     void user_login() {
         user us;
 
-        string id, password;
+        string id;
+        char password[50];
 
         cout << "ENTER USER ID: ";
         cin >> id;
         cout << "ENTER USER PASSWORD: ";
-        cin >> password;
+        pass_input(password);
+        cout << endl;
 
         if(us.user_auth(id, password)){
+            cout << endl << endl;
             us.show_user_menu();
         }
 
         else {
+            cout << endl << endl;
             show_menu();
         }
     }
@@ -337,16 +377,19 @@ public:
 
     void new_user() {
 
-        string id, password, temp;
+        char id[50];
+        char password[50], temp[50];
 
         cout << "ENTER ID: ";
         cin >> id;
         cout << "ENTER PASSWORD: ";
-        cin >> password;
+        pass_input(password);
+        cout << endl;
         cout << "CONFIRM PASSWORD: ";
-        cin >> temp;
+        pass_input(temp);
+        cout << endl;
 
-        if(password != temp){
+        if(strcmpi(password, temp)){
             cout << "PASSWORDS DO NOT MATCH! TRY AGAIN!" << endl << endl;
             show_menu();
         }
@@ -361,13 +404,36 @@ public:
     }
 
 
+    void pass_input(char* password) {
 
 
+        int p = 0;
 
-    void clear() {
-        //FUNCTION FOR CLEARING THE SCREEN
-        // CSI[2J clears screen, CSI[H moves the cursor to top-left corner
-        cout << "\x1B[2J\x1B[H";
+        while(password[p]!='\r') {
+
+            password[p]=getch();
+
+            // CHECKS FOR ENTER KEY
+            if(password[p] == 13){
+                break;
+            }
+
+
+            // CHECKS FOR BACKSPACE OR DEL KEY
+            if(password[p] == 127 || password[p] == 8){
+                cout << "\b \b";
+                -- p;
+            }
+
+            else {
+                cout << "*";
+                ++ p;
+            }
+
+        }
+
+        password[p]='\0';
+
     }
 
 };
