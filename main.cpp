@@ -8,12 +8,11 @@
 # include "sqlite3.h"
 
 
-
 using namespace std;
 
-void create_user_database(){
+void create_users_database(){
 
-    // function for creating required database. database has one table "users".
+    // FOR CREATING USERS DATABASE.
 
     char* err;
     sqlite3* db;
@@ -30,14 +29,14 @@ void create_user_database(){
 
 void create_cars_database(){
 
-    // function for creating required database. database has one table "cars".
+    // FOR CREATING CARS DATABASE
 
     char* err;
-    sqlite3* db;
+    sqlite3* dbs;
     sqlite3_stmt* stmt;
-    sqlite3_open("carsdb.db", &db);
+    sqlite3_open("carsdatabase.db", &dbs);
 
-    int response = sqlite3_exec(db, "CREATE TABLE IF NOT EXISTS cars(name VARCHAR(20), price INT, type VARCHAR(20), status VARCHAR(20));", NULL, NULL, &err);
+    int response = sqlite3_exec(dbs, "CREATE TABLE IF NOT EXISTS carsTable (name VARCHAR(20), price INT ,type VARCHAR(20), status VARCHAR(20));", NULL, NULL, &err);
 
     if(response != SQLITE_OK){
         cout << "ERROR... " << err;
@@ -48,7 +47,7 @@ void create_cars_database(){
 
 int main(){
 
-    create_user_database();
+    create_users_database();
     create_cars_database();
 
     sys syst;

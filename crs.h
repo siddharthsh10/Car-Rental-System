@@ -13,19 +13,22 @@ using namespace std;
 class database {
 public:
     void show_cars_db() {
-        // DEFINE THIS FUNCTION
 
-        cout << "\t\t\t\t\t\t\t view cars database...." << endl;
-        sqlite3* db;
+        cout << endl << endl << endl;
+
+        cout << "displaying cars database..." << endl << endl;
+
+        sqlite3* dbs;
         sqlite3_stmt* stmt;
-        sqlite3_open("carsdb.db", &db);
+        sqlite3_open("carsdatabase.db", &dbs);
 
-        sqlite3_prepare_v2(db, "select name, price, type, status from cars", -1, &stmt, 0);
+        sqlite3_prepare_v2(dbs, "select name, price, type, status from carsTable", -1, &stmt, 0);
 
         const unsigned char* name;
-        int price;
         const unsigned char* type;
         const unsigned char* status;
+        int price;
+
 
         while(sqlite3_step(stmt) != SQLITE_DONE){
 
@@ -33,15 +36,16 @@ public:
             price = sqlite3_column_int(stmt, 1);
             type = sqlite3_column_text(stmt, 2);
             status = sqlite3_column_text(stmt, 3);
-            cout << "\t\t\t\t\t\t\t ** name: " << name<< "   ";
-            cout << "** price: " << price << "   ";
-            cout << "** type: " << type << "   ";
-            cout << "** status: " <<status <<endl;
+
+            cout << "** name: " << name << "       ";
+            cout << "** price: " << price << "       ";
+            cout << "** type: " << type << "        ";
+            cout << "** status: " << status << endl;
         }
 
-        cout << endl << "\t\t\t\t\t\t\t DISPLAY COMPLETE..." << endl << endl;
+        cout << endl << "DISPLAY COMPLETE..." << endl << endl;
 
-        sqlite3_close(db);
+        sqlite3_close(dbs);
 
     }
 
@@ -53,7 +57,7 @@ public:
 
         cout << endl << endl << endl;
 
-        cout << "\t\t\t\t\t\t\t displaying users database..." << endl << endl;
+        cout << "displaying users database..." << endl << endl;
 
         sqlite3* db;
         sqlite3_stmt* stmt;
@@ -70,11 +74,11 @@ public:
 
             id = sqlite3_column_text(stmt, 0);
             password = sqlite3_column_text(stmt, 1);
-            cout << "\t\t\t\t\t\t\t ** user id: " << id << "          ";
+            cout << "** user id: " << id << "       ";
             cout << "** password: " << password << endl;
         }
 
-        cout << endl << "\t\t\t\t\t\t\t DISPLAY COMPLETE..." << endl << endl;
+        cout << endl << "DISPLAY COMPLETE..." << endl << endl;
 
         sqlite3_close(db);
 
@@ -82,104 +86,25 @@ public:
 
 
 
-    void modify_cars_db()
-    {
-        // DEFINE THIS FUNCTION
-
-
+    void modify_cars_db() {
 
         int choice;
 
-        cout << endl << endl << endl << endl <<endl;
-        cout << "\t\t\t\t\t\t\t **************** MODIFY CARS DATABASE ****************" << endl << endl;
-        cout << "\t\t\t\t\t\t\t 1. ADD TO DATABASE." << endl;
-        cout << "\t\t\t\t\t\t\t 2. DELETE FROM DATABASE." << endl;
-        cout << "\t\t\t\t\t\t\t ENTER CHOICE (1/2): ";
+        cout << endl << endl << endl;
+        cout << "******************* MODIFY CARS DATABASE *******************" << endl << endl;
+        cout << "1. ADD TO DATABASE" << endl;
+        cout << "2. DELETE FROM DATABASE" << endl;
+        cout << "3. GO BACK" << endl;
+        cout << "ENTER CHOICE: ";
         cin >> choice;
 
-        switch(choice)
-        {
+        switch(choice){
+
             case 1: add_to_cars_database(); break;
-            case 2: delete_from_cars_database(); break;
-            default: cout << "\t\t\t\t\t\t\t WRONG CHOICE!"; cout << endl << endl << endl; modify_cars_db();
+            case 2: delete_cars(); break;
+            default: "WRONG CHOICE!";
 
         }
-    }
-
-
-    void add_to_cars_database()
-    {
-        string name;
-        int price;
-        string type;
-        string status;
-
-        char choice = 'y';
-
-        char* err;
-        sqlite3* db;
-        sqlite3_stmt* stmt;
-        sqlite3_open("carsdb.db", &db);
-
-        string command;
-
-        while(choice == 'y')
-        {
-
-            cout << endl;
-
-            cout << "\t\t\t\t\t\t\t CAR NAME: ";
-            getline(cin,name);
-            getline(cin,name);
-
-            cout << endl;
-
-            cout << "\t\t\t\t\t\t\t PRICE: ";
-            cin >> price;
-
-            cout << endl;
-
-            cout << "\t\t\t\t\t\t\t TYPE: ";
-            getline(cin,type);
-            getline(cin,type);
-
-            cout << endl;
-
-            cout << "\t\t\t\t\t\t\t STATUS: ";
-            getline(cin,status);
-
-            cout << endl;
-
-            char command[50];
-            sprintf(command, "INSERT INTO cars VALUES ('%s' ,%d ,'%s' ,'%s');", name, price, type, status); //SPRINTF PRINTS TO A STRING BUFFER!
-
-
-            int response = sqlite3_exec(db, command, NULL, NULL, &err);
-
-            if(response != SQLITE_OK)
-            {
-                cout << "\t\t\t\t\t\t\t ERROR... " << err;
-            }
-
-            else
-            {
-                cout << "\t\t\t\t\t\t\t USER ADDED SUCCESSFULLY..." << endl << endl;
-            }
-
-
-
-            cout << "\t\t\t\t\t\t\t ADD MORE?(y/n)";
-            cin >> choice;
-        }
-
-        sqlite3_close(db);
-
-
-    }
-
-
-    void delete_from_cars_database()
-    {
 
     }
 
@@ -188,9 +113,69 @@ public:
     void modify_users_db() {
         // DEFINE THIS FUNCTION
 
-        cout << "\t\t\t\t\t\t\t modify users database...." << endl;
+        cout << "modify users database...." << endl;
     }
 
+
+
+    void add_to_cars_database() {
+
+        char name[50];
+        char type[50];
+        char status[50];
+        int price;
+
+        cout << "ENTER NAME: ";
+        cin >> name;
+
+        cout << "ENTER PRICE: ";
+        cin >> price;
+
+        cout << "ENTER TYPE: ";
+        cin >> type;
+
+        cout << "ENTER STATUS: ";
+        cin >> status;
+
+        add_cars(name, price, type, status);
+
+        modify_cars_db();
+
+
+    }
+
+    void add_cars(char* NAME, int PRICE ,char* TYPE, char* STATUS) {
+
+        char* err;
+        sqlite3* dbs;
+        sqlite3_stmt* stmt;
+
+
+        sqlite3_open("carsdatabase.db", &dbs);
+
+        char operation[150];
+        sprintf(operation , "insert into carsTable (name, price,type, status) values ('%s' , '%d' ,'%s', '%s');", NAME, PRICE ,TYPE, STATUS); //SPRINTF PRINTS TO A STRING BUFFER!
+        // puts(operation); // debug statement
+
+        int res = sqlite3_exec(dbs, operation, NULL, NULL, &err);
+
+        if(res != SQLITE_OK){
+            cout << "ERROR... " << err;
+        }else{
+            cout << "DATA ADDED SUCCESSFULLY..." << endl << endl;
+        }
+
+        sqlite3_close(dbs);
+        cout << endl << endl;
+
+    }
+
+    void delete_cars() {
+
+        // DEFINE THIS FUNCTION
+
+        cout << "delete cars database...." << endl;
+    }
 
 
 };
@@ -210,27 +195,23 @@ public:
     }
 
     void show_admin_menu() {
-
-
-
         int choice;
 
-        cout << endl << endl << endl << endl << endl;
-        cout << "\t\t\t\t\t\t\t ********************* ADMIN MENU *********************" << endl << endl << endl;
-        cout << "\t\t\t\t\t\t\t 1. VIEW CARS DATABASE" << endl;
-        cout << "\t\t\t\t\t\t\t 2. VIEW USERS DATABASE" << endl;
-        cout << "\t\t\t\t\t\t\t 3. MODIFY CARS DATABASE" << endl;
-        cout << "\t\t\t\t\t\t\t 4. MODIFY USERS DATABASE" << endl;
-        cout << "\t\t\t\t\t\t\t ENTER CHOICE (1/2/3/4): ";
+        cout << endl << endl << endl;
+        cout << "******************* ADMIN MENU *******************" << endl << endl;
+        cout << "1. VIEW CARS DATABASE" << endl;
+        cout << "2. VIEW USERS DATABASE" << endl;
+        cout << "3. MODIFY CARS DATABASE" << endl;
+        cout << "4. MODIFY USERS DATABASE" << endl;
+        cout << "ENTER CHOICE (1/2/3/4): ";
         cin >> choice;
-
 
         switch(choice){
             case 1: view_cars_database(); break;
             case 2: view_users_database(); break;
             case 3: modify_cars_database(); break;
             case 4: modify_users_database(); break;
-            default: cout << "\t\t\t\t\t\t\t WRONG CHOICE!"; cout << endl << endl << endl; show_admin_menu();
+            default: cout << "WRONG CHOICE!"; cout << endl << endl << endl; show_admin_menu();
         }
 
     }
@@ -244,7 +225,7 @@ public:
         db.show_cars_db();
 
 
-        cout << endl << "\t\t\t\t\t\t\t go back? (y/n): ";
+        cout << endl << "go back? (y/n): ";
         cin >> choice;
         if (choice == 'y')
             show_admin_menu();
@@ -260,7 +241,7 @@ public:
         database db;
         db.show_users_db();
 
-        cout << endl << "\t\t\t\t\t\t\t go back? (y/n): ";
+        cout << endl << "go back? (y/n): ";
         cin >> choice;
         if(choice == 'y')
             show_admin_menu();
@@ -276,7 +257,7 @@ public:
         database db;
         db.modify_cars_db();
 
-        cout << endl << "\t\t\t\t\t\t\t go back? (y/n): ";
+        cout << endl << "go back? (y/n): ";
         cin >> choice;
         if(choice == 'y')
             show_admin_menu();
@@ -291,7 +272,7 @@ public:
         database db;
         db.modify_users_db();
 
-        cout << endl << "\t\t\t\t\t\t\t go back? (y/n): ";
+        cout << endl << "go back? (y/n): ";
         cin >> choice;
         if(choice == 'y')
             show_admin_menu();
@@ -317,13 +298,13 @@ public:
             return true;
 
         else if ((id == dummy_id) && (pass != dummy_pass)){
-            cout << "\t\t\t\t\t\t\t WRONG PASSWORD!" << endl;
+            cout << "WRONG PASSWORD!" << endl;
             return false;
 
         }
 
         else{
-            cout << "\t\t\t\t\t\t\t THE USER DOES NOT EXIST!" << endl;
+            cout << "THE USER DOES NOT EXIST!" << endl;
             return false;
         }
     }
@@ -333,23 +314,20 @@ public:
 
 
     void show_user_menu(){
-
-
-
         int choice;
         database db;
 
-        cout << endl << endl << endl << endl << endl;
-        cout << "\t\t\t\t\t\t\t ********************** USER MENU **********************" << endl << endl << endl;
-        cout << "\t\t\t\t\t\t\t 1. VIEW CARS DATABASE" << endl;
-        cout << "\t\t\t\t\t\t\t 2. CHANGE PASSWORD" << endl;
-        cout << "\t\t\t\t\t\t\t ENTER CHOICE (1/2): ";
+        cout << endl << endl << endl;
+        cout << "******************* USER MENU *******************" << endl << endl;
+        cout << "1. VIEW CARS DATABASE" << endl;
+        cout << "2. CHANGE PASSWORD" << endl;
+        cout << "ENTER CHOICE (1/2): ";
         cin >> choice;
 
         switch(choice){
             case 1: view_cars_database(); break;
             case 2: change_password(); break;
-            default: cout << "\t\t\t\t\t\t\t WRONG CHOICE!"; cout << endl << endl;show_user_menu();
+            default: cout << "WRONG CHOICE!"; cout << endl << endl; show_user_menu();
         }
     }
 
@@ -357,8 +335,8 @@ public:
 
 
     void change_password() {
-        cout << "\t\t\t\t\t\t\t not implemented yet......." << endl << endl << endl;
-
+        cout << "not implemented yet......." << endl << endl << endl;
+        show_user_menu();
     }
 
 
@@ -372,7 +350,7 @@ public:
         db.show_cars_db();
 
 
-        cout << endl << "\t\t\t\t\t\t\t go back? (y/n): ";
+        cout << endl << "go back? (y/n): ";
         cin >> choice;
         if (choice == 'y')
             show_user_menu();
@@ -402,9 +380,9 @@ public:
         int response = sqlite3_exec(db, command, NULL, NULL, &err);
 
         if(response != SQLITE_OK){
-            cout << "\t\t\t\t\t\t\t ERROR... " << err;
+            cout << "ERROR... " << err;
         }else{
-            cout << "\t\t\t\t\t\t\t USER ADDED SUCCESSFULLY..." << endl << endl;
+            cout << "USER ADDED SUCCESSFULLY..." << endl << endl;
         }
 
         sqlite3_close(db);
@@ -420,18 +398,14 @@ class sys{
 
 public:
     void show_menu(){
-
-        system("CLS");
         int choice;
 
-        cout << endl << endl << endl << endl << endl;
-        cout << "\t\t\t\t\t\t\t ************* WELCOME TO CAR RENTAL SYSTEM *************";
-        cout << endl << endl << endl << "\t\t\t\t\t\t\t 1. ADMIN LOGIN" << endl;
-        cout << "\t\t\t\t\t\t\t 2. USER LOGIN" <<  endl;
-        cout << "\t\t\t\t\t\t\t 3. NEW USER" << endl;
-        cout << endl << "\t\t\t\t\t\t\t ENTER YOUR CHOICE (1/2/3): ";
+        cout << "******************* WELCOME TO CAR RENTAL SYSTEM *******************";
+        cout << endl << endl << "1. ADMIN LOGIN" << endl;
+        cout << "2. USER LOGIN" <<  endl;
+        cout << "3. NEW USER" << endl;
+        cout << endl << "ENTER YOUR CHOICE (1/2/3): ";
         cin >> choice;
-        cout << endl;
 
         switch(choice) {
             case 1 : admin_login(); break;
@@ -454,7 +428,7 @@ public:
 
         while (attempts >= 0){
 
-            cout << "\t\t\t\t\t\t\t ENTER PASSWORD: ";
+            cout << "ENTER PASSWORD: ";
             int i;
             char temp;
 
@@ -467,7 +441,7 @@ public:
 
             else
             	cout << endl;
-                cout << "\t\t\t\t\t\t\t UNSUCCESSFUL! " << attempts << " ATTEMPTS LEFT!" << endl;
+                cout << "UNSUCCESSFUL! " << attempts << " ATTEMPTS LEFT!" << endl;
 
             -- attempts;
 
@@ -487,9 +461,9 @@ public:
         string id;
         char password[50];
 
-        cout << "\t\t\t\t\t\t\t ENTER USER ID: ";
+        cout << "ENTER USER ID: ";
         cin >> id;
-        cout << "\t\t\t\t\t\t\t ENTER USER PASSWORD: ";
+        cout << "ENTER USER PASSWORD: ";
         pass_input(password);
         cout << endl;
 
@@ -513,17 +487,17 @@ public:
         char id[50];
         char password[50], temp[50];
 
-        cout << "\t\t\t\t\t\t\t ENTER ID: ";
+        cout << "ENTER ID: ";
         cin >> id;
-        cout << "\t\t\t\t\t\t\t ENTER PASSWORD: ";
+        cout << "ENTER PASSWORD: ";
         pass_input(password);
         cout << endl;
-        cout << "\t\t\t\t\t\t\t CONFIRM PASSWORD: ";
+        cout << "CONFIRM PASSWORD: ";
         pass_input(temp);
         cout << endl;
 
         if(strcmpi(password, temp)){
-            cout << "\t\t\t\t\t\t\t PASSWORDS DO NOT MATCH! TRY AGAIN!" << endl << endl;
+            cout << "PASSWORDS DO NOT MATCH! TRY AGAIN!" << endl << endl;
             show_menu();
         }
 
