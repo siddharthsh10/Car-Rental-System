@@ -29,6 +29,7 @@ public:
         const unsigned char* type;
         const unsigned char* status;
         int price;
+        int sno=0;
 
 
         while(sqlite3_step(stmt) != SQLITE_DONE){
@@ -38,6 +39,7 @@ public:
             type = sqlite3_column_text(stmt, 2);
             status = sqlite3_column_text(stmt, 3);
 
+            cout << "** sno: " << sno+1 <<"     ";
             cout << "** name: " << name <<"     ";
             cout << "** price: " << price <<"     ";
             cout << "** type: " << type <<"      ";
@@ -189,7 +191,9 @@ public:
                 }
             }
 
-            add_cars(name, price, type, status);
+
+
+            add_cars( name, price, type, status);
 
             cout << "ADD MORE?(Y/N)";
             cin >> choice;
@@ -200,7 +204,7 @@ public:
 
     }
 
-    void add_cars(char* NAME, int PRICE ,char* TYPE, char* STATUS) {
+    void add_cars( char* NAME, int PRICE ,char* TYPE, char* STATUS) {
 
         char* err;
         sqlite3* dbs;
@@ -210,7 +214,7 @@ public:
         sqlite3_open("carsdatabase.db", &dbs);
 
         char operation[150];
-        sprintf(operation , "insert into carsTable (name, price,type, status) values ('%s' , '%d' ,'%s', '%s');", NAME, PRICE ,TYPE, STATUS); //SPRINTF PRINTS TO A STRING BUFFER!
+        sprintf(operation , "insert into carsTable ( name, price, type, status) values ('%s' , '%d' ,'%s', '%s');" ,NAME, PRICE ,TYPE, STATUS); //SPRINTF PRINTS TO A STRING BUFFER!
         // puts(operation); // debug statement
 
         int res = sqlite3_exec(dbs, operation, NULL, NULL, &err);
@@ -373,31 +377,57 @@ public:
 
 class user{
 
-    string dummy_id = "user";
-    string dummy_pass = "user";
+    const unsigned char* iden;
+    const unsigned char* password;
 
 public:
 
-    bool user_auth(string id, string pass){
+    bool user_auth(char* id, char* pass){
         // A FUNCTION TO CHECK IF THE USER EXISTS IN THE USER DATABASE BY COMPARING ID AND PASSWORD.
 
-        // DUMMY IMPLEMNTATION
-        if((id == dummy_id) && (pass == dummy_pass))
-            return true;
+        // int i,j;
+        sqlite3* db;
+        sqlite3_stmt* stmt;
+        sqlite3_open("database.db", &db);
 
-        else if ((id == dummy_id) && (pass != dummy_pass)){
-            cout << "WRONG PASSWORD!" << endl;
-            return false;
+        bool found = false;
+        bool flag = false;
 
+        sqlite3_prepare_v2(db, "select uid, pwd from users", -1, &stmt, 0);
+
+        while(sqlite3_step(stmt) != SQLITE_DONE)
+        {
+
+            iden = sqlite3_column_text(stmt, 0);
+            password = sqlite3_column_text(stmt, 1);
+
+            const char* curr_id =  reinterpret_cast<const char*>(iden);
+            const char* curr_pass = reinterpret_cast<const char*>(password);
+
+            int id_match = strcmpi(id, curr_id);
+            int pass_match = strcmpi(pass, curr_pass);
+
+            if((id_match == 0) && (pass_match == 0)) {
+                cout << "*** LOGIN SUCCESSFUL ***" << endl;
+                found = true;
+                break;
+            }
+
+            else if((id_match == 0) && (pass_match != 0)) {
+                cout << "WRONG PASSWORD...." << endl;
+                flag = true;
+            }
         }
 
-        else{
-            cout << "THE USER DOES NOT EXIST!" << endl;
-            return false;
+        if(!found && !flag) {
+            cout << "USER NOT FOUND..." << endl;
         }
-    }
 
 
+        sqlite3_close(db);
+
+        return found;
+}
 
 
 
@@ -443,6 +473,7 @@ public:
         if (choice == 'y')
             show_user_menu();
     }
+
 
 
 };
@@ -548,7 +579,7 @@ public:
     void user_login() {
         user us;
 
-        string id;
+        char id[50];
         char password[50];
 
         cout << "ENTER USER ID: ";
